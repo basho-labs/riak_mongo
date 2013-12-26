@@ -22,21 +22,15 @@
 
 -module(riak_mongo).
 -behaviour(application).
--export([start/3, start/2, start/0, stop/1]).
+-export([start/2, stop/1]).
 
 -define(DEFAULT_ADDR, "127.0.0.1").
 -define(DEFAULT_PORT, 32323).
 
-start(_Type, IpAddr, Port) when is_number(Port) ->
-    riak_mongo_sup:start_link(IpAddr, Port);
-start(_Type, IpAddr, Port) ->
-    riak_mongo_sup:start_link(IpAddr, list_to_integer(Port)).
-
-start(_Type, []) ->
-    start(ignore, ?DEFAULT_ADDR, ?DEFAULT_PORT).
+start(_Type, _StartArgs) ->
+    IpAddr = app_helper:get_env(riak_mongo, ip, ?DEFAULT_ADDR),
+    Port = app_helper:get_env(riak_mongo, port, ?DEFAULT_PORT),
+    riak_mongo_sup:start_link(IpAddr, Port).
 
 stop(_State) ->
     ok.
-
-start() ->
-    application:start(riak_mongo).
