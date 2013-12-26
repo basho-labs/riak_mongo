@@ -24,5 +24,5 @@
 %% @doc riak_mongo.wire.port is a TCP port that the RiakMongo Wire interface will bind to.
 {mapping, "riak_mongo.wire.port", "riak_mongo.wire.port", [
   {default, 32323},
-  {datatype, integer},
+  {datatype, integer}
 ]}.
