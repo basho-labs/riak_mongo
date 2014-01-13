@@ -29,15 +29,13 @@
 -include("riak_mongo_protocol.hrl").
 -include("riak_mongo_state.hrl").
 
--compile([{parse_transform, lager_transform}]).
-
 -export([insert/2,
-	 find/2,
-	 getmore/2,
-	 delete/2,
-	 update/2,
-	 stats/2,
-	 count/3]).
+     find/2,
+     getmore/2,
+     delete/2,
+     update/2,
+     stats/2,
+     count/3]).
 
 -define(DEFAULT_TIMEOUT, 60000).
 -define(DEFAULT_FIND_SIZE, 101).
@@ -46,8 +44,8 @@
 %% used by JS tests and see how they can be dynamized
 stats(Bucket, State) ->
     Doc = [{ns, {utf8, binary_to_list(Bucket)}},
-	   {paddingFactor, 1},
-	   {ok, 1}],
+       {paddingFactor, 1},
+       {ok, 1}],
     {ok, Doc, State}.
 
 insert(#mongo_insert{dbcoll=Bucket, documents=Docs, continueonerror=ContinueOnError}, State) ->
@@ -153,7 +151,7 @@ find(#mongo_query{dbcoll=Bucket, selector=Selector, projector=Projection, batchs
     end.
 
 update(#mongo_update{dbcoll=Bucket, selector=Selector, updater=Updater, rawupdater=RawUpdater,
-		     multiupdate=MultiUpdate, upsert=Upsert}, State) ->
+             multiupdate=MultiUpdate, upsert=Upsert}, State) ->
 
     error_logger:info_msg("About to update ~p, ~p, ~p~n", [Updater, MultiUpdate, Upsert]),
 
@@ -162,16 +160,16 @@ update(#mongo_update{dbcoll=Bucket, selector=Selector, updater=Updater, rawupdat
             {ok, C} = riak:local_client(),
             case C:get(Bucket, RiakKey) of
                 {ok, RiakObject} ->
-		    NewObject = riak_object:update_value(RiakObject, RawUpdater),
-		    case C:put(NewObject) of
-			ok -> State;
-			Err -> State#worker_state{ lastError=Err }
+            NewObject = riak_object:update_value(RiakObject, RawUpdater),
+            case C:put(NewObject) of
+            ok -> State;
+            Err -> State#worker_state{ lastError=Err }
                     end;
                 Err -> State#worker_state{ lastError=Err }
             end;
-	_ ->
-	    error_logger:info_msg("This update variant is not yet supported~n", []),
-	    State
+    _ ->
+        error_logger:info_msg("This update variant is not yet supported~n", []),
+        State
     end.
 
 delete(#mongo_delete{dbcoll=Bucket, selector=Selector, singleremove=SingleRemove}, State) ->
@@ -223,14 +221,14 @@ count(Bucket, Selector, State) ->
     Project = fun(RiakObject, _) -> riak_object:key(RiakObject) end,
     CompiledQuery = riak_mongo_query:compile(Selector),
     Doc = case riak_kv_mrc_pipe:mapred(Bucket,
-				       [{map, {qfun, fun map_query/3},
-					 {CompiledQuery, Project},
-					 true},
-					{reduce, {qfun, fun reduce_count/2},
-					 none, true}]) of
-	      {ok, [[Count]]} -> [{n, Count}];
-	      {ok, [_, [Count]]} -> [{n, Count}]
-	  end,
+                       [{map, {qfun, fun map_query/3},
+                     {CompiledQuery, Project},
+                     true},
+                    {reduce, {qfun, fun reduce_count/2},
+                     none, true}]) of
+          {ok, [[Count]]} -> [{n, Count}];
+          {ok, [_, [Count]]} -> [{n, Count}]
+      end,
     {ok, Doc, State}.
 
 %% internals
@@ -243,12 +241,12 @@ input_counter_fold(PrevCount, Acc) when is_integer(PrevCount) ->
 input_counter_fold(_, Acc) ->
     1 + Acc.
 
-map_drop_tombstones(RiakObject, _KeyData, _) ->
-    Acc = [],
-    case riak_kv_util:is_x_deleted(RiakObject) of
-	true -> Acc;
-	false -> [1]
-    end.
+% map_drop_tombstones(RiakObject, _KeyData, _) ->
+%     Acc = [],
+%     case riak_kv_util:is_x_deleted(RiakObject) of
+%         true -> Acc;
+%         false -> [1]
+%     end.
 
 cursor_add(PID, #worker_state{ cursors=Dict, cursor_next=ID }=State) ->
     MRef = erlang:monitor(process, PID),
@@ -479,7 +477,7 @@ bson_to_riak_key(BIN) when is_binary(BIN) ->
     BIN;
 bson_to_riak_key(null) ->
     iolist_to_binary("UUID:" ++
-			 hexencode(list_to_binary(riak_core_util:unique_id_62()))).
+             hexencode(list_to_binary(riak_core_util:unique_id_62()))).
 
 hexencode(<<>>) -> [];
 hexencode(<<CH, Rest/binary>>) ->

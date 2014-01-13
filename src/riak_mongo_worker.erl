@@ -22,7 +22,14 @@
 
 -module(riak_mongo_worker).
 
--export([start_link/2, handle_info/2, init/1]).
+-export([
+    start_link/2, 
+    handle_info/2, 
+    init/1,
+    code_change/3,
+    handle_call/3,
+    handle_cast/2,
+    terminate/2]).
 
 -behavior(gen_server).
 
@@ -58,7 +65,6 @@ handle_info(?CONTROL_MSG, State) ->
     inet:setopts(State#worker_state.sock, ?SOCK_OPTS),
     {noreply, State};
 
-
 handle_info({'DOWN',Ref,_,_,_}, State=#worker_state{ cursors=CursorDict }) ->
 
     Dict2 = dict:filter(fun(_, {MRef,_}) ->
@@ -68,7 +74,24 @@ handle_info({'DOWN',Ref,_,_,_}, State=#worker_state{ cursors=CursorDict }) ->
 
     {noreply, State#worker_state{ cursors=Dict2 }};
 
-
 handle_info(Msg, State) ->
     error_logger:info_msg("unknown message in worker callback: ~p~n", [Msg]),
     {noreply, State}.
+
+system_code_change([Name, State, Mod, Time], _Module, OldVsn, Extra) ->
+    case catch Mod:code_change(OldVsn, State, Extra) of
+    {ok, NewState} -> {ok, [Name, NewState, Mod, Time]};
+    Else -> Else
+    end.
+
+code_change(_OldVsn, State, _Extra) ->
+    {ok, State}.
+
+handle_call(_Msg, {_From, _Tag}, State) ->
+    {reply, ok, State}.
+
+handle_cast(_Msg, State) ->
+    {noreply, State}.
+
+terminate(_Reason, _State) ->
+    ok.

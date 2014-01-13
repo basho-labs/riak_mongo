@@ -22,7 +22,7 @@
 
 {application, riak_mongo,
  [{description, "Collection of things to make Riak look like Mongo to the clients"},
-  {vsn, "0.1"},
+  {vsn, "1.0"},
   {modules, []},
   {registered, []},
   {applications, [kernel, stdlib]},

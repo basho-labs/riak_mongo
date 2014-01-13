@@ -22,7 +22,15 @@
 
 -module(riak_mongo_server).
 
--export([start_link/2, init/1, handle_info/2]).
+-export([
+    start_link/2, 
+    init/1, 
+    handle_info/2, 
+    handle_call/3, 
+    handle_cast/2, 
+    terminate/2
+]).
+
 -export([new_connection/2, sock_opts/0]).
 
 -behavior(gen_nb_server).
@@ -54,3 +62,12 @@ handle_info(?CONTROLLING_PROCESS_MSG(Sock, NewOwner), State) ->
 handle_info(Msg, State) ->
     error_logger:info_msg("unknown message in worker callback: ~p~n", [Msg]),
     {noreply, State}.
+
+handle_call(_Request, _From, ServerState) ->
+    {reply, ok, ServerState}.
+
+handle_cast(_Msg, ServerState) ->
+    {noreply, ServerState}.
+
+terminate(_Reason, _ServerState) ->
+    ok.
