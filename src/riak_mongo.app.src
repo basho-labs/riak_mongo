@@ -22,12 +22,9 @@
 
 {application, riak_mongo,
  [{description, "Collection of things to make Riak look like Mongo to the clients"},
-  {vsn, "1.0"},
+  {vsn, "1"},
   {modules, []},
   {registered, []},
   {applications, [kernel, stdlib]},
-  {mod,
-        {riak_mongo, []}
-  },
   {env, []
 }]}.
