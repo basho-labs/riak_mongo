@@ -1,3 +1,3 @@
 # Riak Mongo
 
-A set of library modules for bson hanlding.
+A set of library modules for bson handling.
